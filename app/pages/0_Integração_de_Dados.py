@@ -8,7 +8,7 @@ from kedro.framework.startup import bootstrap_project
 from libs.utils.utils import *
 from libs.integrador import main as integrador
 
-# ---- Page Setup ----
+from db.functions.coletar_dados import coletar
 
 st.set_page_config(page_title="Integração de Dados", layout="wide")
 
@@ -98,11 +98,28 @@ with tab1:
 with tab2:
 
     file = st.file_uploader(
-        "Selecione a planilha de **Reagentes**:", type='xlsx', key=f'reagentes_sql', disabled=True)
+        "Selecione a planilha de **Reagentes**:", type='xlsx', key=f'reagentes_sql', disabled=False)
+    
+    load = st.button('Carregar dados do Banco de Dados', key='sql_load', on_click=coletar, type="secondary")
+    if load:
+        st.success("Dados de entrada carregados com **sucesso**!")
+        st.toast("Dados carregados")
 
-    st.button('Processar Dados de Entrada', key='sql_process', on_click=integrador.kedro_run, args=[
-        'web_app', ['web_app'], catalog, st.session_state], type='secondary', disabled=True)
+    process = st.button('Processar Dados de Entrada', key='sql_process', on_click=integrador.kedro_run, args=[
+        'web_app', ['web_app'], catalog, st.session_state], type='secondary', disabled=False)
+    if process:
+        st.toast("Dados processados")
+        st.success("Dados processados com **sucesso**")
+        st.info(f"Informação mais recente é de **{st.session_state.last_update}**.")
 
-    st.button('Atualizar Base de Dados', key='sql_update', disabled=True,
+    update = st.button('Atualizar Base de Dados', key='sql_update', disabled=False,
               on_click=integrador.replace_database,
-              args=['merged_raw_data', 'hourly_data', catalog])
+              args=['merged_raw_data', 'hourly_data', catalog, st.session_state])
+    if update:
+        st.toast("Dados atualizados")
+    
+    if st.session_state.updated:
+        st.success(
+            f'Base de Dados Analítica do Simulador e do Otimizador atualizada com sucesso em {st.session_state.updated_date}!')
+    elif st.session_state.updated == False:
+        st.exception(st.session_state.updated_except)
