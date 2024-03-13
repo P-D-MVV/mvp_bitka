@@ -95,7 +95,7 @@ def render_tabs(X: pd.DataFrame, y: Any, etapas: Dict[str, Dict[str, list]], key
         available_hours = X.index[X.index.date == st.session_state['selected_date']]
 
         if hours_str_list := [time.strftime('%H:%M:%S') for time in available_hours.time]:
-            selected_time_str = st.selectbox("Selecione uma hora:", hours_str_list, index=hours_str_list.index(st.session_state['selected_time_str']))
+            selected_time_str = st.selectbox("Selecione uma hora:", ["00.00.00"] + hours_str_list, index=hours_str_list.index(st.session_state['selected_time_str']))
             selected_datetime = pd.to_datetime(
                 f"{selected_date_input} {selected_time_str}")
 
