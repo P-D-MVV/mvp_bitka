@@ -6,7 +6,7 @@ import streamlit as st
 def coletar():
     st.toast("Carregando dados")
 
-    server = "192.168.5.225"
+    server = "192.168.5.225.1433"
     database = "PCP_PLANTA"
     username = "pcp.planta"
     password = "Planta@pcp2021"
