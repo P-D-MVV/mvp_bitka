@@ -55,7 +55,8 @@ def render_tabs(X: pd.DataFrame, y: Any, etapas: Dict[str, Dict[str, list]], key
             st.session_state['selected_date'] = st.session_state['selected_date_input']
 
         if 'selected_time_str' not in st.session_state:
-            st.session_state['selected_time_str'] = "00:00:00"  # Valor inicial
+            # st.session_state['selected_time_str'] = "00:00:00"  # Valor inicial
+            st.session_state['selected_time_str'] = "01:00:00"
 
         def load_last_datetime():
             last_datetime = X.index[-1]
@@ -82,12 +83,13 @@ def render_tabs(X: pd.DataFrame, y: Any, etapas: Dict[str, Dict[str, list]], key
         with st.container():
             st.button('Selecionar Última Data e Hora', on_click=load_last_datetime)
 
-
+            import datetime as dt
             selected_date_input = st.date_input(
                 "Selecione uma data:",
                 key='selected_date_input',  # Use a key for the widget
                 value=st.session_state['selected_date'],
                 min_value=X.index[0].date(),
+                # min_value=dt.datetime(year=2023, month=1, day=1),
                 max_value=X.index[-1].date(),
                 on_change=update_selected_date
             )
@@ -95,7 +97,7 @@ def render_tabs(X: pd.DataFrame, y: Any, etapas: Dict[str, Dict[str, list]], key
         available_hours = X.index[X.index.date == st.session_state['selected_date']]
 
         if hours_str_list := [time.strftime('%H:%M:%S') for time in available_hours.time]:
-            selected_time_str = st.selectbox("Selecione uma hora:", ["00.00.00"] + hours_str_list, index=hours_str_list.index(st.session_state['selected_time_str']))
+            selected_time_str = st.selectbox("Selecione uma hora:", ["00:00:00"] + hours_str_list, index=hours_str_list.index(st.session_state['selected_time_str']))
             selected_datetime = pd.to_datetime(
                 f"{selected_date_input} {selected_time_str}")
 
