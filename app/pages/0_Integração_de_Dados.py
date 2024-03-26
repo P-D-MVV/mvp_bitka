@@ -8,7 +8,7 @@ from kedro.framework.startup import bootstrap_project
 from libs.utils.utils import *
 from libs.integrador import main as integrador
 
-from db.functions.coletar_dados import coletar
+from db.functions.rodar_consulta import rodar
 
 st.set_page_config(page_title="Integração de Dados", layout="wide")
 
@@ -100,7 +100,7 @@ with tab2:
     file = st.file_uploader(
         "Selecione a planilha de **Reagentes**:", type='xlsx', key=f'reagentes_sql', disabled=False)
     
-    load = st.button('Carregar dados do Banco de Dados', key='sql_load', on_click=coletar, type="secondary")
+    load = st.button('Carregar dados do Banco de Dados', key='sql_load', on_click=rodar, type="secondary")
     if load:
         st.success("Dados de entrada carregados com **sucesso**!")
         st.toast("Dados carregados")

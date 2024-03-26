@@ -43,8 +43,6 @@ option = st.selectbox(
     ["Teor de Cobre na CD"]
 )
 
-st.markdown(f"<h1 style='text-align: center; font-size: 25px;'>Análise Preditiva {option}</h1>", unsafe_allow_html=True)
-
 if option == "Teor de Cobre na CD":
     data = catalog.load("hourly_data")
     model = catalog.load("conformal_model_conc_cd_randomly")
