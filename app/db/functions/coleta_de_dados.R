@@ -80,7 +80,9 @@ con <- dbConnect(odbc::odbc(),
 
 # Defina os parâmetros
 DataIn <- '2023-06-01'
-DataFi <- '2024-03-04'
+# DataFi <- '2024-03-04'
+DataFinal <- Sys.Date()
+DataFi <- format(DataFinal, "%d/%m/%Y")
 ListEquips <- '1,2,3'  # Substitua pelos IDs reais dos equipamentos
 
 # Crie a consulta SQL
