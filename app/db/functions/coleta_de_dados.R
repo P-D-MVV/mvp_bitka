@@ -18,6 +18,8 @@ con <- dbConnect(odbc::odbc(),
                  UID = username,
                  PWD = password)
 
+# url <- paste("DRIVER={{ODBC Driver 17 for SQL Server}};SERVER="server";DATABASE="database";UID="username";PWD="password"; TrustedConnection = yes")
+# con <- dbConnect(odbc::odbc(), .connection_string = url, timeout=6000)
 # Ler a tabela do banco de dados
 laboratorio <- dbReadTable(con, "LABORATORIO")
 laboratorio_raiox <- dbReadTable(con, "LABORATORIO_RAIOX")
@@ -82,7 +84,7 @@ con <- dbConnect(odbc::odbc(),
 DataIn <- '2023-06-01'
 # DataFi <- '2024-03-04'
 DataFinal <- Sys.Date()
-DataFi <- format(DataFinal, "%d/%m/%Y")
+DataFi <- format(DataFinal, "%Y/%m/%d")
 ListEquips <- '1,2,3'  # Substitua pelos IDs reais dos equipamentos
 
 # Crie a consulta SQL
