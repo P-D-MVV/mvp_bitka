@@ -9,6 +9,8 @@ from libs.utils.utils import *
 from libs.integrador import main as integrador
 
 from db.functions.rodar_consulta import rodar
+from db.functions.coletar_dados import coletar
+from db.functions.data_functions import atualizar_datas
 
 st.set_page_config(page_title="Integração de Dados", layout="wide")
 
@@ -37,8 +39,13 @@ módulos (Simulador e Otimizador).
 st.markdown('### Atualizar Base de Dados Analítica do Simulador e Otimizador:',
             unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["Importação via planilha Excel",
-                     "Importação via Banco de Dados"])
+tab1, tab2, tab3 = st.tabs(["Importação via planilha Excel",
+                     "Importação via Banco de Dados",
+                     "Resumo das últimas importações"])
+
+# tab1, tab2, tab3, tab4 = st.tabs(["Importação via planilha Excel",
+#                      "Importação via Banco de Dados",
+#                      "Resumo das últimas importações", "Export"])
 
 # ---- Importação de Dados ----
 
@@ -108,7 +115,7 @@ with tab2:
     process = st.button('Processar Dados de Entrada', key='sql_process', on_click=integrador.kedro_run, args=[
         'web_app', ['web_app'], catalog, st.session_state], type='secondary', disabled=False)
     if process:
-        st.toast("Dados processados")
+        # st.toast("Dados processados")
         st.success("Dados processados com **sucesso**")
         st.info(f"Informação mais recente é de **{st.session_state.last_update}**.")
 
@@ -116,10 +123,57 @@ with tab2:
               on_click=integrador.replace_database,
               args=['merged_raw_data', 'hourly_data', catalog, st.session_state])
     if update:
-        st.toast("Dados atualizados")
+        # atualizar_datas()
+        pass
     
     if st.session_state.updated:
         st.success(
             f'Base de Dados Analítica do Simulador e do Otimizador atualizada com sucesso em {st.session_state.updated_date}!')
     elif st.session_state.updated == False:
         st.exception(st.session_state.updated_except)
+
+with tab3:
+    date_lab, date_lab_rx, date_blend, date_balanco, date_carta_controle, date_reagentes = open("infos.txt", "r").readlines()
+
+    maior_data = max([date_lab, date_lab_rx, date_blend, date_balanco, date_carta_controle, date_reagentes])
+
+    data_modelo = os.environ["DATA_MODELO"]
+
+    st.subheader('Última atualização do modelo:', divider="green")
+    st.info(f"O modelo foi aferido em: {data_modelo}")
+
+    st.subheader('Últimas atualizações de dados', divider="green")
+    if date_lab == maior_data:
+        st.success(f"A última atualização do **Laboratório** é de: {date_lab}" )
+    else: 
+        st.error(f"A última atualização do **Laboratório** é de: {date_lab}" )
+    if date_lab_rx == maior_data:
+        st.success(f"A última atualização do **Laboratório Raio X** é de: {date_lab_rx}")
+    else:
+        st.error(f"A última atualização do **Laboratório Raio X** é de: {date_lab_rx}")
+    if date_blend == maior_data:
+        st.success(f"A última atualização do **Blend** é de: {date_blend}")
+    else: 
+        st.error(f"A última atualização do **Blend** é de: {date_blend}")
+    if date_balanco == maior_data:
+        st.success(f"A última atualização do **Balanço de Massas** é de : {date_balanco}")
+    else:
+        st.error(f"A última atualização do **Balanço de Massas** é de : {date_balanco}")
+    if date_carta_controle == maior_data:
+        st.success(f"A última atualização da **Carta Controle PIMS** é de: {date_carta_controle}" )
+    else:
+        st.error(f"A última atualização da **Carta Controle PIMS** é de: {date_carta_controle}" )
+    if date_reagentes == maior_data:
+        st.success(f"A última atualização dos **Reagentes** é de: {date_reagentes}" )
+    else:
+        st.error(f"A última atualização dos **Reagentes** é de: {date_reagentes}" )
+# with tab4:
+#     from openpyxl import load_workbook
+
+#     book = load_workbook("carta.xlsx")
+#     writer = pd.ExcelWriter("carta.xlsx", engine="openpyxl")
+#     writer.book = book
+#     writer = pd.ExcelWriter(engine="xlsxwriter", path="carta.xlsx")
+#     df = pd.read_excel("app/data/01_raw_data/carta_controle_pims.xlsx")
+#     btn = st.download_button("Baixar dados", data=df.to_excel(writer, sheet_name="Carta Controle PIMS"), file_name="carta.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+   
