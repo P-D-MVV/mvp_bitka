@@ -107,6 +107,7 @@ def render_restriction_inputs(etapas: Dict[str, Dict[str, List[str]]], decision_
     user_restrictions = {}
     unique_input_variables = set()
     for etapa, variable_groups in etapas.items():
+        print(etapa)
         for variable_type, variable_tuples in variable_groups.items():
             for variable_tuple in variable_tuples:
                 variable, _ = variable_tuple  # Extração do nome da variável da tupla

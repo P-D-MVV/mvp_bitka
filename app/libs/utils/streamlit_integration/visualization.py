@@ -52,6 +52,7 @@ def render_tabs(X: pd.DataFrame, y: Any, etapas: Dict[str, Dict[str, list]], key
             st.session_state['selected_date'] = X.index[0].date()
 
         def update_selected_date():
+            print(st.session_state["selected_date"])
             st.session_state['selected_date'] = st.session_state['selected_date_input']
 
         if 'selected_time_str' not in st.session_state:
@@ -100,6 +101,8 @@ def render_tabs(X: pd.DataFrame, y: Any, etapas: Dict[str, Dict[str, list]], key
             selected_time_str = st.selectbox("Selecione uma hora:", ["00:00:00"] + hours_str_list, index=hours_str_list.index(st.session_state['selected_time_str']))
             selected_datetime = pd.to_datetime(
                 f"{selected_date_input} {selected_time_str}")
+            
+            print(selected_time_str)
 
             # Retrieve lagged data
             lag_1hr = selected_datetime - pd.Timedelta(hours=1)
@@ -135,6 +138,9 @@ def render_tabs(X: pd.DataFrame, y: Any, etapas: Dict[str, Dict[str, list]], key
         st.plotly_chart(fig)
 
         def on_button_click(selected_time_str):
+            print(f"hora selecionada: { selected_time_str }")
+            # test = st.session_state["selected_time_str"]
+            # print(f"st {test}")
             active_tab = st.session_state.get(
                 "active_tab", "Seleção de Data e Hora do Histórico")
             if active_tab == "Seleção de Data e Hora do Histórico" and selected_day_data is not None:
@@ -143,7 +149,8 @@ def render_tabs(X: pd.DataFrame, y: Any, etapas: Dict[str, Dict[str, list]], key
                     new_input_values[col] = combined_data[col].to_dict()
 
                 st.session_state[key] = new_input_values
-                st.session_state['selected_time_str'] = selected_time_str
+                selected_time_str  = st.session_state['selected_time_str']
+                st.session_state['selected_time_str'] = selected_time_str 
 
         st.button("Carregar Dados de Entrada a partir de Data e Hora",
                   disabled=not st.session_state['load_dataset_by_date_hour'], on_click=on_button_click(selected_time_str = selected_time_str))

@@ -289,17 +289,7 @@
             "Sulfetado_LG", 
             "Sulfetado_HG", 
             "Sulfetado_MG", 
-            "Sulfetado_SHG",
-            "Sulfetado_HG_Estoque",
-            "Sulfetado_LG_Estoque",
-            "Sulfetado_MG_Estoque",
-            "Sulfetado_SHG_Estoque",
-            "Sulfetado_HG_Fase1",
-            "Sulfetado_MG_Fase1",
-            "Sulfetado_SHG_Fase1",
-            "Sulfetado_HG_Fase2",
-            "Sulfetado_LG_Fase2",
-            "Sulfetado_MG_Fase2"
+            "Sulfetado_SHG"
         ]
     },
     "new_features": {

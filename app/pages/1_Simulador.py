@@ -60,9 +60,7 @@ with open('app/data/00_metadata/etapas.yaml', encoding='utf-8') as file:
     yaml_data = yaml.safe_load(file)
 
 etapas = generate_variable_dict(model_variables, yaml_data, include_all=True)
-
 stage_keys = list(etapas.keys())
-
 input_values_simulator = render_tabs(X, y, etapas, 'input_values_simulator', model)
 
 def add_interaction_variables(model_variables, etapas_dict):

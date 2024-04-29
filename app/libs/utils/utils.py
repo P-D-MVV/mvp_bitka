@@ -37,6 +37,7 @@ def generate_variable_dict(model_variables, yaml_data, include_all=False):
 
     # Mapear nomes base de variáveis para todas as suas variações
     model_vars_variations = {}
+    # print(model_variables)
     for var in model_variables:
         if '&' in var:
             continue

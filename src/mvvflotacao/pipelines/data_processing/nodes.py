@@ -114,11 +114,18 @@ def preprocess_laboratorio(partitions: Dict[str, Callable[[], Any]], raw_data_ve
     if 'ALIM_FLOT_CU_SOL' in df2.columns and 'ALIM_FLOT_CU_TOT' in df2.columns:
         # Calculate the ratio
         df2['RAZAO_CU_SOL'] = df2['ALIM_FLOT_CU_SOL'] / df2['ALIM_FLOT_CU_TOT']
+        df2['RAZAO_MOI_CU_SOL'] = df2['ALM_MOI_CU_CITR'] / df2['ALM_MOI_CU']
+
 
         # Fill with 0 where either column is 0 or NaN
         mask = (df2['ALIM_FLOT_CU_SOL'].isna() | (df2['ALIM_FLOT_CU_SOL'] == 0) |
                 df2['ALIM_FLOT_CU_TOT'].isna() | (df2['ALIM_FLOT_CU_TOT'] == 0))
         df2.loc[mask, 'RAZAO_CU_SOL'] = 0
+
+                # Fill with 0 where either column is 0 or NaN
+        mask = (df2['ALM_MOI_CU_CITR'].isna() | (df2['ALM_MOI_CU_CITR'] == 0) |
+                df2['ALM_MOI_CU'].isna() | (df2['ALM_MOI_CU'] == 0))
+        df2.loc[mask, 'RAZAO_MOI_CU_SOL'] = 0
     laboratorio = preprocess_rawdata(df2)
 
     # remove amostras estranhas
@@ -244,75 +251,38 @@ def pivoting_blend(df):
     Returns:
         pd.DataFrame: Preprocessed and pivoted DataFrame with hourly percentages of 'Tipo_Material' categorized.
     """
-
-    # Handling 'TIPO 1' in 'Tipo_Material'
-    tipo_1_suffix = ' TIPO 1'
-    for material in ['Sulfetado_LG', 'Sulfetado_MG', 'Sulfetado_HG', 'Sulfetado_SHG']:
-        tipo_1_col = f'{material}{tipo_1_suffix}'
-        if tipo_1_col in df['Tipo_Material'].unique():
-            # Combine 'TIPO 1' values with their respective main material types
-            df.loc[df['Tipo_Material'] == tipo_1_col, 'Tipo_Material'] = material
-
-    # Initialize an empty DataFrame for the final result
     final_df = pd.DataFrame()
 
-    # Define the categories and their corresponding filters
-    categories = {
-        'Estoque': df['Category'] != 'LIB',
-        'Fase1': df['Fase'] == 0,
-        'Fase2': df['Fase'] == 1
-    }
+    df['Tipo_Material'] = df['Tipo_Material'].str.replace(' TIPO 1', '')
 
-    # Process each category
-    for category, filter_condition in categories.items():
-        filtered_df = df[filter_condition]
+    # Group, sum and pivot
+    grouped = df.groupby(['Início da Hora', 'Tipo_Material'])['Massa'].sum().reset_index()
+    pivot_table = grouped.pivot(index='Início da Hora',
+                                columns='Tipo_Material', values='Massa').fillna(0)
+    # Calculate total mass per hour and percentages
+    pivot_table['Total_Massa'] = pivot_table.sum(axis=1)
 
-        # Group, sum and pivot
-        grouped = filtered_df.groupby(['Início da Hora', 'Tipo_Material'])[
-            'Massa'].sum().reset_index()
-        pivot_table = grouped.pivot(index='Início da Hora',
-                                    columns='Tipo_Material', values='Massa').fillna(0)
+    for col in pivot_table.columns:
+        if col != 'Total_Massa':
+            pivot_table[col] = pivot_table[col] / pivot_table['Total_Massa'] * 100
 
-        # Calculate total mass per hour and percentages
-        pivot_table['Total_Massa'] = pivot_table.sum(axis=1)
-        for col in pivot_table.columns:
-            if col != 'Total_Massa':
-                pivot_table[col] = pivot_table[col] / pivot_table['Total_Massa'] * 100
+    # Drop 'Total_Massa' and reset index
+    pivot_table = pivot_table.drop(columns=['Total_Massa']).reset_index()
 
-        # Drop 'Total_Massa' and reset index
-        pivot_table = pivot_table.drop(columns=['Total_Massa']).reset_index()
-
-        # Rename columns with category suffix
-        pivot_table = pivot_table.rename(
-            columns=lambda x: f"{x}_{category}" if x != 'Início da Hora' else x)
-
-        # Merge with final DataFrame
-        if final_df.empty:
-            final_df = pivot_table
-        else:
-            final_df = pd.merge(final_df, pivot_table, on='Início da Hora', how='outer')
-
+    # Merge with final DataFrame
+    if final_df.empty:
+        final_df = pivot_table
+    else:
+        final_df = pd.merge(final_df, pivot_table, on='Início da Hora', how='outer')
+        
     # Reindexing and filling missing values
     new_index = pd.date_range(start=final_df['Início da Hora'].min(
     ), end=final_df['Início da Hora'].max(), freq='H')
     final_df = final_df.set_index('Início da Hora').reindex(new_index).reset_index()
     final_df.rename(columns={'index': 'DATA'}, inplace=True)
     final_df = final_df.fillna(0)
-
-    # Define sulfetado materials
-    sulfetados = ['Sulfetado_LG', 'Sulfetado_MG', 'Sulfetado_HG', 'Sulfetado_SHG']
-
-    for sulfetado in sulfetados:
-        colunas_para_somar = []
-        for cat in ['Estoque', 'Fase1', 'Fase2']:
-            coluna = f'{sulfetado}_{cat}'
-            if coluna not in final_df.columns:
-                final_df[coluna] = 0
-            colunas_para_somar.append(coluna)
-
-        final_df[f'{sulfetado}'] = final_df[colunas_para_somar].sum(axis=1)
-
     return final_df
+
 
 
 def pivoting_blend_cobre(df: pd.DataFrame) -> pd.DataFrame:
@@ -328,28 +298,29 @@ def pivoting_blend_cobre(df: pd.DataFrame) -> pd.DataFrame:
 
     # Calcular a quantidade de cobre em cada registro
     df['Quantidade_Cu'] = df['Massa'] * df['Teor de Cu']
+    print(df)
 
     # Inicializar um DataFrame para o resultado final
     result_df = pd.DataFrame(index=pd.date_range(
         start=df['Início da Hora'].min(), end=df['Início da Hora'].max(), freq='H'))
 
-    # Definir as origens e suas respectivas condições de filtro
-    origens = {
-        'Estoque': df['Category'] != 'LIB',
-        'Fase1': df['Fase'] == 0,
-        'Fase2': df['Fase'] == 1
-    }
+    ## Definir as origens e suas respectivas condições de filtro
+    #origens = {
+    #    'Estoque': df['Category'] != 'LIB',
+    #    'Fase1': df['Fase'] == 0,
+    #    'Fase2': df['Fase'] == 1
+    #}
 
-    # Processar cada origem
-    for origem, filter_condition in origens.items():
-        # Filtrar o DataFrame pela condição da origem
-        origem_df = df[filter_condition]
+    ## Processar cada origem
+    #for origem, filter_condition in origens.items():
+    #    # Filtrar o DataFrame pela condição da origem
+    #    origem_df = df[filter_condition]
 
         # Agrupar por 'Início da Hora' e somar a 'Quantidade_Cu'
-        origem_grouped = origem_df.groupby('Início da Hora')['Quantidade_Cu'].sum()
+    origem_grouped = df.groupby('Início da Hora','Tipo_Material')['Quantidade_Cu'].sum()
 
         # Adicionar os dados ao DataFrame de resultado
-        result_df[f'Cobre_{origem}'] = origem_grouped
+    result_df['Cobre'] = origem_grouped
 
     # Preencher valores NaN com zeros e renomear o índice
     result_df.fillna(0, inplace=True)

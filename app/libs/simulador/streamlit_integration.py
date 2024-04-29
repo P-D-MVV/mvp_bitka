@@ -114,6 +114,7 @@ def update_visualization(selected_stage: str, input_df: pd.DataFrame, model: Exp
 
     # Impacts das variáveis selecionadas
     selected_impacts = {k: v for k, v in impacts_dict.items() if k in selected_variables}
+
     # A previsão final usando o modelo
     if isinstance(impacts_dict, pd.DataFrame):
         # Sum up the values of the first column if that's your intention
