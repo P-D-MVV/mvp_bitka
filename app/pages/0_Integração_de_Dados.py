@@ -107,6 +107,12 @@ with tab2:
     file = st.file_uploader(
         "Selecione a planilha de **Reagentes**:", type='xlsx', key=f'reagentes_sql', disabled=False)
     
+    if file:
+        df = pd.read_excel(file)
+        df.to_excel(f'./app/data/01_raw_data/reagentes.xlsx', index=False)
+        st.session_state["reagentes"] = df.head(50)
+
+    
     load = st.button('Carregar dados do Banco de Dados', key='sql_load', on_click=rodar, type="secondary")
     if load:
         st.success("Dados de entrada carregados com **sucesso**!")
