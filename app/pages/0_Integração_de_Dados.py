@@ -8,7 +8,7 @@ from kedro.framework.startup import bootstrap_project
 from libs.utils.utils import *
 from libs.integrador import main as integrador
 
-from db.functions.rodar_consulta import rodar
+from app.db.functions.rodar_consulta import rodar
 
 st.set_page_config(page_title="Integração de Dados", layout="wide")
 

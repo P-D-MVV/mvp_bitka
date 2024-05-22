@@ -2,7 +2,7 @@ import subprocess
 import os
 import pandas as pd 
 
-from coletar_dados import adequar_reagentes
+from app.db.functions.coletar_dados import adequar_reagentes
 
 def retornar_maior_data(dados: pd.DataFrame) -> pd.to_datetime:
     data = dados.loc[:, ["DATA"]].max()[0]
