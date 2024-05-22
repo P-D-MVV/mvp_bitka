@@ -298,7 +298,6 @@ def pivoting_blend_cobre(df: pd.DataFrame) -> pd.DataFrame:
 
     # Calcular a quantidade de cobre em cada registro
     df['Quantidade_Cu'] = df['Massa'] * df['Teor de Cu']
-    print(df)
 
     # Inicializar um DataFrame para o resultado final
     result_df = pd.DataFrame(index=pd.date_range(

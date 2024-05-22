@@ -9,8 +9,6 @@ from libs.utils.utils import *
 from libs.integrador import main as integrador
 
 from db.functions.rodar_consulta import rodar
-from db.functions.coletar_dados import coletar
-from db.functions.data_functions import atualizar_datas
 
 st.set_page_config(page_title="Integração de Dados", layout="wide")
 
@@ -143,7 +141,7 @@ with tab3:
 
     maior_data = max([date_lab, date_lab_rx, date_blend, date_balanco, date_carta_controle, date_reagentes])
 
-    data_modelo = os.environ["DATA_MODELO"]
+    data_modelo = "22/05/2024"
 
     st.subheader('Última atualização do modelo:', divider="green")
     st.info(f"O modelo foi aferido em: {data_modelo}")

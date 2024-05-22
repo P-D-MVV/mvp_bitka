@@ -2,6 +2,8 @@ import subprocess
 import os
 import pandas as pd 
 
+from coletar_dados import adequar_reagentes
+
 def retornar_maior_data(dados: pd.DataFrame) -> pd.to_datetime:
     data = dados.loc[:, ["DATA"]].max()[0]
     try:
@@ -30,10 +32,12 @@ def retornar_maior_data_reagentes(dados: pd.DataFrame) -> pd.to_datetime:
     data = pd.to_datetime(data).strftime("%d/%m/%Y")
     hora = str(hora)[0:5]
     # .strftime("%d/%m/%Y")
+    print(dados)
     return f"{data} às {hora}"
 
 def rodar():
     subprocess.run(["Rscript", 'app/db/functions/coleta_de_dados.R'])
+    adequar_reagentes()
     with open("infos.txt", "w+") as arq:
         data_lab = pd.read_excel("app/data/01_raw_data/laboratorio.xlsx")
         data_lab_rx = pd.read_excel("app/data/01_raw_data/laboratorio_raiox.xlsx")
@@ -48,6 +52,9 @@ def rodar():
         date_balanco = retornar_maior_data(data_balanco_massa)
         date_carta_controle = retornar_maior_data(data_carta_controle)
         date_reagentes = retornar_maior_data_reagentes(data_reagentes)
+
+        print(data_reagentes)
+        print("data é " + date_reagentes)
 
         arq.write(f"{date_lab}\n")
         arq.write(f"{date_lab_rx}\n")
