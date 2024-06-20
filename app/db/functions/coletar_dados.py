@@ -6,12 +6,16 @@ import os
 def adequar_reagentes():
     reagentes = pd.read_excel("app/data/01_raw_data/reagentes_pre.xlsx")
     colunas = [c for c in reagentes.columns.values]
-    reagentes["DATA_HORA"] = pd.to_datetime(reagentes["DATA_HORA"])
-    reagentes["DATA"] = reagentes["DATA_HORA"].dt.date
+    # print(colunas)
+    reagentes["DATA_HORA"] = pd.to_datetime(reagentes["DATA"])
+    # reagentes["DATA"] = reagentes["DATA_HORA"].dt.date
     reagentes["Horário"] = reagentes["DATA_HORA"].dt.time
-    n_colunas = ["DATA", "Horário"] + colunas
+    n_colunas = ["DATA", "DATA_HORA", "Horário"] + colunas 
     reagentes = reagentes[n_colunas]
-    reagentes = reagentes.drop("DATA_HORA", axis=1)
+    reagentes = reagentes.drop("DATA", axis=1)
+    print(reagentes.columns)
+
+
 
     reagentes.to_excel("app/data/01_raw_data/reagentes_dados.xlsx", header=None, index=None)
 
